@@ -1,5 +1,5 @@
 /**
- * Real cat & dog sounds — only one plays at a time.
+ * One sound at a time — plays to the end, then 0.1s pause before the next.
  */
 const PetAudio = (() => {
   const SOUNDS = {
@@ -9,50 +9,51 @@ const PetAudio = (() => {
     whine: ["sounds/whine.mp3"],
   };
 
+  const COOLDOWN_MS = 100;
+
   let current = null;
-  let stopTimer = null;
+  let locked = false;
 
   function soundUrl(relative) {
     return typeof assetUrl === "function" ? assetUrl(relative) : relative;
   }
 
-  function stop() {
-    clearTimeout(stopTimer);
-    stopTimer = null;
-    if (!current) return;
-    current.pause();
-    current.currentTime = 0;
+  function release() {
     current = null;
+    setTimeout(() => {
+      locked = false;
+    }, COOLDOWN_MS);
   }
 
-  function playFile(relativeSrc, maxSeconds = 2.5, volume = 0.8) {
-    stop();
+  function playFile(relativeSrc, volume = 0.8) {
+    if (locked) return false;
+
+    locked = true;
     const audio = new Audio(soundUrl(relativeSrc));
     audio.volume = volume;
     current = audio;
-    const cleanup = () => {
-      if (current === audio) current = null;
-      clearTimeout(stopTimer);
-      stopTimer = null;
+
+    const done = () => {
+      if (current !== audio) return;
+      audio.removeEventListener("ended", done);
+      audio.removeEventListener("error", done);
+      release();
     };
-    audio.addEventListener("ended", cleanup);
-    audio.play().catch(cleanup);
-    stopTimer = setTimeout(() => {
-      if (current === audio) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-      cleanup();
-    }, maxSeconds * 1000);
+
+    audio.addEventListener("ended", done);
+    audio.addEventListener("error", done);
+    audio.play().catch(done);
+    return true;
   }
 
-  function play(category, variant = 0, maxSeconds = 2.5) {
+  function play(category, variant = 0) {
     const list = SOUNDS[category];
-    if (!list?.length) return;
-    playFile(list[Math.abs(variant) % list.length], maxSeconds);
+    if (!list?.length) return false;
+    return playFile(list[Math.abs(variant) % list.length]);
   }
 
   function wake() {
+    if (locked) return;
     const a = new Audio(soundUrl(SOUNDS.meow[0]));
     a.volume = 0.01;
     a.play().then(() => {
@@ -63,16 +64,15 @@ const PetAudio = (() => {
 
   return {
     wake,
-    stop,
-    meow: (v) => play("meow", v, 2),
-    purr: () => play("purr", 0, 2.2),
-    bark: (v) => play("bark", v, 2),
-    whine: () => play("whine", 0, 2),
-    hiss: () => play("meow", 2, 1.2),
-    yawn: () => play("meow", 1, 2),
-    trill: () => play("meow", 0, 0.9),
-    yap: (v) => play("bark", v, 1.2),
-    growl: () => play("bark", 2, 1.5),
-    laugh: () => playFile("sounds/laugh.mp3", 5, 0.88),
+    meow: (v) => play("meow", v),
+    purr: () => play("purr", 0),
+    bark: (v) => play("bark", v),
+    whine: () => play("whine", 0),
+    hiss: () => play("meow", 2),
+    yawn: () => play("meow", 1),
+    trill: () => play("meow", 0),
+    yap: (v) => play("bark", v),
+    growl: () => play("bark", 2),
+    laugh: () => playFile("sounds/laugh.mp3", 0.88),
   };
 })();
