@@ -19,8 +19,18 @@
   ];
 
   const POOLS = {
-    cat: { sit: CAT_IMAGES, stretch: ["assets/cat-stretch.png", "assets/cat-stretch-web.jpg", "assets/cat-yawn-web.jpg"], sleep: ["assets/cat-sleep.png", "assets/cat-sleep-web.jpg"], play: CAT_IMAGES },
-    dog: { sit: DOG_IMAGES, stretch: DOG_IMAGES, sleep: DOG_IMAGES, play: DOG_IMAGES },
+    cat: {
+      sit: CAT_IMAGES,
+      stretch: ["assets/cat-stretch.png", "assets/cat-stretch-web.jpg", "assets/cat-yawn-web.jpg"],
+      sleep: ["assets/cat-sleep.png", "assets/cat-sleep-web.jpg"],
+      play: CAT_IMAGES,
+    },
+    dog: {
+      sit: DOG_IMAGES,
+      stretch: DOG_IMAGES,
+      sleep: DOG_IMAGES,
+      play: DOG_IMAGES,
+    },
   };
 
   const REACTIONS = [
@@ -51,7 +61,7 @@
 
   const MAX_SPEED = 3.2;
   const FRICTION = 0.9992;
-  const BOUNDS_PAD = 12;
+  const BOUNDS_PAD = 8;
 
   const stage = document.getElementById("pets-stage");
   const petsRow = document.getElementById("pets-row");
@@ -75,8 +85,10 @@
   }
 
   function petSize(kind) {
-    const base = Math.min(stageW, stageH) * 0.16;
-    return kind === "dog" ? base * 1.08 : base;
+    const base = Math.min(stageW, stageH) * 0.28;
+    const max = Math.min(stageW, stageH) * 0.38;
+    const size = kind === "dog" ? base * 1.05 : base;
+    return Math.min(size, max);
   }
 
   function pickImage(kind, pose, key, slot) {
@@ -193,7 +205,7 @@
     let dx = bx - ax;
     let dy = by - ay;
     const dist = Math.hypot(dx, dy) || 0.001;
-    const minDist = (a.size + b.size) * 0.42;
+    const minDist = (a.size + b.size) * 0.38;
 
     if (dist >= minDist) return;
 
