@@ -1,0 +1,274 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: "Georgia", "Times New Roman", serif;
+}
+
+body {
+  background: #1a1410;
+}
+
+.room {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 30% 25%, rgba(255, 230, 190, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 75% 70%, rgba(180, 200, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse 90% 70% at 50% 50%, #3d322c 0%, #1f1814 55%, #15100d 100%);
+}
+
+.window-light {
+  position: absolute;
+  top: -5%;
+  left: 10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(ellipse at 40% 30%, rgba(255, 230, 190, 0.18) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.floor {
+  display: none;
+}
+
+.pets-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.pets-row {
+  position: absolute;
+  inset: 0;
+}
+
+.pet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform, opacity;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.pet-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+}
+
+.pet-inner.idle-breath {
+  animation: breath 4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+.pet-inner.return-pop {
+  animation: return-pop 0.9s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+}
+
+@keyframes return-pop {
+  0% {
+    transform: scale(0.15) rotate(-25deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.18) rotate(6deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes breath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.pet-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5));
+  transition: opacity 0.2s ease;
+}
+
+.pet-img.swapping {
+  opacity: 0.35;
+}
+
+.pet-shadow {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  width: 55%;
+  height: 10%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.pet-inner.pose-stretch .pet-img {
+  animation: stretch-pop 0.9s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.pet-inner.pose-sleep .pet-img {
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35)) brightness(0.94);
+}
+
+@keyframes stretch-pop {
+  0% { transform: scale(0.92); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.pet-inner.react-look-left { transform: rotate(-8deg) scale(1.05); }
+.pet-inner.react-look-right { transform: rotate(8deg) scale(1.05); }
+
+.pet-inner.react-hop {
+  animation: hop 0.55s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes hop {
+  0%, 100% { transform: scale(1); }
+  35% { transform: scale(1.12); }
+  60% { transform: scale(0.96); }
+}
+
+.pet-inner.react-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg) scale(1.05); }
+  75% { transform: rotate(10deg) scale(1.05); }
+}
+
+.pet-inner.react-pounce {
+  animation: pounce 0.65s cubic-bezier(0.36, 0, 0.2, 1);
+}
+
+@keyframes pounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.9); }
+  55% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.pet-inner.react-lean-back { transform: scale(0.92) rotate(-4deg); }
+.pet-inner.react-lean-forward { transform: scale(1.1) rotate(4deg); }
+
+.pet-inner.react-spin {
+  animation: spin-tilt 0.7s ease-in-out;
+}
+
+@keyframes spin-tilt {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(18deg) scale(1.08); }
+}
+
+.pet-inner.react-shake-head {
+  animation: shake-head 0.45s ease-in-out;
+}
+
+@keyframes shake-head {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8%); }
+  40% { transform: translateX(8%); }
+  60% { transform: translateX(-5%); }
+  80% { transform: translateX(5%); }
+}
+
+.pet-inner.react-blink .pet-img {
+  animation: blink 0.35s ease;
+}
+
+@keyframes blink {
+  45% { filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5)) brightness(0.6); }
+}
+
+.pet-inner.react-purr-glow .pet-img {
+  animation: purr-glow 1.2s ease-in-out;
+}
+
+@keyframes purr-glow {
+  50% { filter: drop-shadow(0 8px 24px rgba(255, 200, 120, 0.35)) brightness(1.08); }
+}
+
+.prints {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.print {
+  position: absolute;
+  font-size: clamp(16px, 2.5vw, 24px);
+  opacity: 0;
+  animation: print-fade 1.8s ease-out forwards;
+}
+
+@keyframes print-fade {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.6) rotate(var(--rot, 0deg));
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.1) translateY(-18px) rotate(var(--rot, 0deg));
+  }
+}
+
+.hint {
+  position: fixed;
+  bottom: 4vh;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: rgba(255, 235, 210, 0.55);
+  font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+  z-index: 10;
+}
+
+.hint-sub {
+  margin-top: 0.35em;
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.hint.hidden {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-inner,
+  .pet-img,
+  .print {
+    animation: none !important;
+  }
+}

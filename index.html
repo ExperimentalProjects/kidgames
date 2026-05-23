@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kid Games</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Georgia", "Times New Roman", serif;
+      color: #fff5e8;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 220, 160, 0.2) 0%, transparent 55%),
+        linear-gradient(165deg, #3d322c 0%, #1f1814 50%, #15100d 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1.25rem 3rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: normal;
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .tagline {
+      margin-top: 0.6rem;
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: rgba(255, 235, 210, 0.65);
+    }
+
+    main {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: normal;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255, 235, 210, 0.45);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .games {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .game-card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: rgba(255, 240, 220, 0.08);
+      border: 1px solid rgba(255, 220, 180, 0.15);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .game-card:hover,
+    .game-card:focus-visible {
+      transform: translateY(-3px);
+      background: rgba(255, 240, 220, 0.14);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      outline: none;
+    }
+
+    .game-card h3 {
+      font-size: 1.35rem;
+      font-weight: normal;
+      margin-bottom: 0.35rem;
+    }
+
+    .game-card p {
+      font-size: 0.95rem;
+      color: rgba(255, 235, 210, 0.7);
+      line-height: 1.45;
+    }
+
+    .game-card .emoji {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    footer {
+      margin-top: auto;
+      padding-top: 2.5rem;
+      font-size: 0.85rem;
+      color: rgba(255, 235, 210, 0.35);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kid Games</h1>
+    <p class="tagline">Pick a game and have fun!</p>
+  </header>
+
+  <main>
+    <h2>Play</h2>
+    <ul class="games">
+      <li>
+        <a class="game-card" href="cat/">
+          <span class="emoji" aria-hidden="true">🐱🐶</span>
+          <h3>Keyboard Cats &amp; Dogs</h3>
+          <p>Press any key! Cats and dogs float around, make sounds, and react. Try Space for a surprise.</p>
+        </a>
+      </li>
+    </ul>
+  </main>
+
+  <footer>More games coming soon</footer>
+</body>
+</html>
