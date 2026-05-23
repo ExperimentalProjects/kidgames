@@ -59,8 +59,9 @@
     { kind: "dog", slot: 2 },
   ];
 
-  const MAX_SPEED = 3.2;
-  const FRICTION = 0.9992;
+  const MIN_SPEED = 1.1;
+  const MAX_SPEED = 4.5;
+  const FRICTION = 0.9996;
   const BOUNDS_PAD = 8;
 
   const stage = document.getElementById("pets-stage");
@@ -111,24 +112,51 @@
     if (sp > MAX_SPEED) {
       pet.vx = (pet.vx / sp) * MAX_SPEED;
       pet.vy = (pet.vy / sp) * MAX_SPEED;
+    } else if (sp > 0 && sp < MIN_SPEED) {
+      pet.vx = (pet.vx / sp) * MIN_SPEED;
+      pet.vy = (pet.vy / sp) * MIN_SPEED;
     }
   }
 
-  function initMotion(pet, index) {
+  function randomVelocity() {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED) * 0.85;
+    return {
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+    };
+  }
+
+  function randomPosition(pet) {
+    const maxX = Math.max(0, stageW - pet.size - BOUNDS_PAD * 2);
+    const maxY = Math.max(0, stageH - pet.size - BOUNDS_PAD * 2);
+    pet.x = BOUNDS_PAD + Math.random() * maxX;
+    pet.y = BOUNDS_PAD + Math.random() * maxY;
+  }
+
+  function initMotion(pet) {
     pet.size = petSize(pet.kind);
     pet.el.style.width = `${pet.size}px`;
     pet.el.style.height = `${pet.size}px`;
+    randomPosition(pet);
+    const vel = randomVelocity();
+    pet.vx = vel.vx;
+    pet.vy = vel.vy;
+    pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
+  }
 
-    const maxX = Math.max(BOUNDS_PAD, stageW - pet.size - BOUNDS_PAD);
-    const maxY = Math.max(BOUNDS_PAD, stageH - pet.size - BOUNDS_PAD);
-    pet.x = BOUNDS_PAD + Math.random() * maxX;
-    pet.y = BOUNDS_PAD + Math.random() * maxY;
-
-    const angle = (index / PET_DEFS.length) * Math.PI * 2 + Math.random() * 0.6;
-    const speed = 0.6 + Math.random() * 0.9;
-    pet.vx = Math.cos(angle) * speed;
-    pet.vy = Math.sin(angle) * speed;
-    clampSpeed(pet);
+  function layoutAllPets() {
+    measureStage();
+    pets.forEach((pet) => {
+      pet.size = petSize(pet.kind);
+      pet.el.style.width = `${pet.size}px`;
+      pet.el.style.height = `${pet.size}px`;
+      randomPosition(pet);
+      const vel = randomVelocity();
+      pet.vx = vel.vx;
+      pet.vy = vel.vy;
+      pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
+    });
   }
 
   /** Random movement effect per pet for each key — accelerate, slow, reverse, etc. */
@@ -258,16 +286,15 @@
       clearTimeout(pet.timer);
       const maxX = Math.max(BOUNDS_PAD, stageW - pet.size - BOUNDS_PAD);
       const maxY = Math.max(BOUNDS_PAD, stageH - pet.size - BOUNDS_PAD);
-      pet.x = BOUNDS_PAD + Math.random() * maxX;
-      pet.y = BOUNDS_PAD + Math.random() * maxY;
+      randomPosition(pet);
       pet.away = false;
       pet.fleeing = false;
       pet.el.style.opacity = "1";
       pet.inner.className = "pet-inner idle-breath return-pop";
-      const angle = (i / pets.length) * Math.PI * 2 + Math.random() * 0.5;
-      pet.vx = Math.cos(angle) * (1.2 + Math.random() * 0.8);
-      pet.vy = Math.sin(angle) * (1.2 + Math.random() * 0.8);
-      clampSpeed(pet);
+      const vel = randomVelocity();
+      pet.vx = vel.vx;
+      pet.vy = vel.vy;
+      pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
       setTimeout(() => pet.inner.classList.remove("return-pop"), 900);
     });
     scatterBusy = false;
@@ -359,10 +386,10 @@
 
       pet.vx *= FRICTION;
       pet.vy *= FRICTION;
-      if (Math.abs(pet.vx) < 0.05 && Math.abs(pet.vy) < 0.05) {
-        const drift = Math.random() * Math.PI * 2;
-        pet.vx = Math.cos(drift) * 0.45;
-        pet.vy = Math.sin(drift) * 0.45;
+      if (Math.hypot(pet.vx, pet.vy) < MIN_SPEED) {
+        const vel = randomVelocity();
+        pet.vx = vel.vx;
+        pet.vy = vel.vy;
       }
 
       pet.x += pet.vx;
@@ -373,19 +400,24 @@
 
       if (pet.x < BOUNDS_PAD) {
         pet.x = BOUNDS_PAD;
-        pet.vx = Math.abs(pet.vx) * 0.95;
+        pet.vx = Math.abs(pet.vx) + 0.4 + Math.random() * 0.8;
+        pet.vy += (Math.random() - 0.5) * 1.2;
       } else if (pet.x > maxX) {
         pet.x = maxX;
-        pet.vx = -Math.abs(pet.vx) * 0.95;
+        pet.vx = -Math.abs(pet.vx) - 0.4 - Math.random() * 0.8;
+        pet.vy += (Math.random() - 0.5) * 1.2;
       }
 
       if (pet.y < BOUNDS_PAD) {
         pet.y = BOUNDS_PAD;
-        pet.vy = Math.abs(pet.vy) * 0.95;
+        pet.vy = Math.abs(pet.vy) + 0.4 + Math.random() * 0.8;
+        pet.vx += (Math.random() - 0.5) * 1.2;
       } else if (pet.y > maxY) {
         pet.y = maxY;
-        pet.vy = -Math.abs(pet.vy) * 0.95;
+        pet.vy = -Math.abs(pet.vy) - 0.4 - Math.random() * 0.8;
+        pet.vx += (Math.random() - 0.5) * 1.2;
       }
+      clampSpeed(pet);
 
       pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
     }
@@ -500,7 +532,7 @@
       fleeing: false,
       away: false,
     };
-    initMotion(pet, index);
+    initMotion(pet);
     return pet;
   }
 
@@ -528,27 +560,30 @@
 
   function onResize() {
     measureStage();
-    pets.forEach((pet, i) => {
+    pets.forEach((pet) => {
       const maxX = Math.max(BOUNDS_PAD, stageW - pet.size - BOUNDS_PAD);
       const maxY = Math.max(BOUNDS_PAD, stageH - pet.size - BOUNDS_PAD);
-      pet.x = Math.min(pet.x, maxX);
-      pet.y = Math.min(pet.y, maxY);
+      pet.x = Math.min(Math.max(pet.x, BOUNDS_PAD), maxX);
+      pet.y = Math.min(Math.max(pet.y, BOUNDS_PAD), maxY);
       pet.size = petSize(pet.kind);
       pet.el.style.width = `${pet.size}px`;
       pet.el.style.height = `${pet.size}px`;
     });
   }
 
-  PET_DEFS.forEach((def, i) => pets.push(buildPet(def, i)));
   measureStage();
+  PET_DEFS.forEach((def, i) => pets.push(buildPet(def, i)));
+  requestAnimationFrame(() => {
+    layoutAllPets();
+    requestAnimationFrame(layoutAllPets);
+  });
   window.addEventListener("resize", onResize);
   document.addEventListener("keydown", onKeyDown);
   room.addEventListener("pointerdown", onPointerDown);
   requestAnimationFrame(tick);
 
   window.addEventListener("load", () => {
-    measureStage();
-    onResize();
+    layoutAllPets();
     window.focus();
     document.body.setAttribute("tabindex", "-1");
     document.body.focus();

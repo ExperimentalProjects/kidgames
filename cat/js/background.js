@@ -1,13 +1,13 @@
 (() => {
-  const BACKGROUNDS = [
-    "assets/backgrounds/jungle.jpg",
-    "assets/backgrounds/forest.jpg",
-    "assets/backgrounds/river.jpg",
-    "assets/backgrounds/lake.jpg",
-    "assets/backgrounds/mountains.jpg",
-    "assets/backgrounds/meadow.jpg",
-    "assets/backgrounds/village.jpg",
-    "assets/backgrounds/coast.jpg",
+  const FILES = [
+    "jungle.jpg",
+    "forest.jpg",
+    "river.jpg",
+    "lake.jpg",
+    "mountains.jpg",
+    "meadow.jpg",
+    "village.jpg",
+    "coast.jpg",
   ];
 
   const ROTATE_MS = 45000;
@@ -15,6 +15,12 @@
   const layerA = document.getElementById("bg-a");
   const layerB = document.getElementById("bg-b");
   if (!layerA || !layerB) return;
+
+  function bgUrl(filename) {
+    return new URL(`assets/backgrounds/${filename}`, window.location.href).href;
+  }
+
+  const BACKGROUNDS = FILES.map(bgUrl);
 
   let index = startIndex();
   let showingA = true;
@@ -24,27 +30,48 @@
     return Math.floor((hour / 24) * BACKGROUNDS.length) % BACKGROUNDS.length;
   }
 
-  function setLayer(el, src) {
-    el.style.backgroundImage = `url("${src}")`;
+  function preload(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(src);
+      img.onerror = reject;
+      img.src = src;
+    });
   }
 
-  function show(index) {
-    const src = BACKGROUNDS[index];
-    const showEl = showingA ? layerA : layerB;
-    const hideEl = showingA ? layerB : layerA;
-    setLayer(showEl, src);
-    showEl.classList.add("visible");
-    hideEl.classList.remove("visible");
-    showingA = !showingA;
+  function showLayer(el, src) {
+    el.src = src;
+    el.classList.add("visible");
+  }
+
+  function hideLayer(el) {
+    el.classList.remove("visible");
+  }
+
+  function transitionTo(nextIndex) {
+    const src = BACKGROUNDS[nextIndex];
+    const showEl = showingA ? layerB : layerA;
+    const hideEl = showingA ? layerA : layerB;
+
+    preload(src)
+      .then(() => {
+        showLayer(showEl, src);
+        hideLayer(hideEl);
+        showingA = !showingA;
+        index = nextIndex;
+      })
+      .catch(() => {});
   }
 
   function next() {
-    index = (index + 1) % BACKGROUNDS.length;
-    show(index);
+    transitionTo((index + 1) % BACKGROUNDS.length);
   }
 
-  setLayer(layerA, BACKGROUNDS[index]);
-  layerA.classList.add("visible");
-
-  setInterval(next, ROTATE_MS);
+  preload(BACKGROUNDS[index]).then(() => {
+    showLayer(layerA, BACKGROUNDS[index]);
+    hideLayer(layerB);
+    setInterval(next, ROTATE_MS);
+  }).catch(() => {
+    showLayer(layerA, BACKGROUNDS[0]);
+  });
 })();
