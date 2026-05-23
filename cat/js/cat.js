@@ -86,15 +86,18 @@
   }
 
   function petSize(kind) {
-    const base = Math.min(stageW, stageH) * 0.28;
-    const max = Math.min(stageW, stageH) * 0.38;
+    const w = stageW || window.innerWidth;
+    const h = stageH || window.innerHeight;
+    const base = Math.min(w, h) * 0.22;
+    const cap = Math.min(w, h) * 0.32;
     const size = kind === "dog" ? base * 1.05 : base;
-    return Math.min(size, max);
+    return Math.max(100, Math.min(size, cap));
   }
 
   function pickImage(kind, pose, key, slot) {
     const pool = POOLS[kind][pose] || POOLS[kind].sit;
-    return pool[(hash(key, slot) + slot * 11) % pool.length];
+    const rel = pool[(hash(key, slot) + slot * 11) % pool.length];
+    return assetUrl(rel);
   }
 
   function pickReaction(key, index) {
@@ -142,7 +145,7 @@
     const vel = randomVelocity();
     pet.vx = vel.vx;
     pet.vy = vel.vy;
-    pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
+    placePet(pet);
   }
 
   function layoutAllPets() {
@@ -155,7 +158,7 @@
       const vel = randomVelocity();
       pet.vx = vel.vx;
       pet.vy = vel.vy;
-      pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
+      placePet(pet);
     });
   }
 
@@ -294,7 +297,7 @@
       const vel = randomVelocity();
       pet.vx = vel.vx;
       pet.vy = vel.vy;
-      pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
+      placePet(pet);
       setTimeout(() => pet.inner.classList.remove("return-pop"), 900);
     });
     scatterBusy = false;
@@ -371,7 +374,7 @@
       if (pet.fleeing) {
         pet.x += pet.vx;
         pet.y += pet.vy;
-        pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
+        placePet(pet);
         continue;
       }
 
@@ -419,7 +422,7 @@
       }
       clampSpeed(pet);
 
-      pet.el.style.transform = `translate3d(${pet.x}px, ${pet.y}px, 0)`;
+      placePet(pet);
     }
 
     const active = pets.filter((p) => !p.away && !p.fleeing);
@@ -431,13 +434,18 @@
   }
 
   function measureStage() {
-    stageW = stage.clientWidth;
-    stageH = stage.clientHeight;
+    stageW = stage.clientWidth || window.innerWidth;
+    stageH = stage.clientHeight || window.innerHeight;
+  }
+
+  function placePet(pet) {
+    pet.el.style.left = `${pet.x}px`;
+    pet.el.style.top = `${pet.y}px`;
   }
 
   function setPetImage(pet, pose, key) {
     const src = pickImage(pet.kind, pose, key, pet.slot);
-    if (pet.img.src.endsWith(src)) return;
+    if (pet.img.src === src) return;
     pet.img.classList.add("swapping");
     const loader = new Image();
     loader.onload = () => {
@@ -445,7 +453,7 @@
       pet.img.classList.remove("swapping");
     };
     loader.onerror = () => {
-      pet.img.src = POOLS[pet.kind].sit[0];
+      pet.img.src = assetUrl(POOLS[pet.kind].sit[0]);
       pet.img.classList.remove("swapping");
     };
     loader.src = src;
@@ -506,7 +514,7 @@
     img.className = "pet-img";
     img.draggable = false;
     img.alt = "";
-    img.src = POOLS[def.kind].sit[def.slot % POOLS[def.kind].sit.length];
+    img.src = assetUrl(POOLS[def.kind].sit[def.slot % POOLS[def.kind].sit.length]);
 
     const shadow = document.createElement("div");
     shadow.className = "pet-shadow";

@@ -16,11 +16,7 @@
   const layerB = document.getElementById("bg-b");
   if (!layerA || !layerB) return;
 
-  function bgUrl(filename) {
-    return new URL(`assets/backgrounds/${filename}`, window.location.href).href;
-  }
-
-  const BACKGROUNDS = FILES.map(bgUrl);
+  const BACKGROUNDS = FILES.map((f) => assetUrl(`assets/backgrounds/${f}`));
 
   let index = startIndex();
   let showingA = true;
@@ -34,7 +30,7 @@
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(src);
-      img.onerror = reject;
+      img.onerror = () => reject(new Error("bg load failed"));
       img.src = src;
     });
   }
@@ -67,11 +63,8 @@
     transitionTo((index + 1) % BACKGROUNDS.length);
   }
 
-  preload(BACKGROUNDS[index]).then(() => {
-    showLayer(layerA, BACKGROUNDS[index]);
-    hideLayer(layerB);
-    setInterval(next, ROTATE_MS);
-  }).catch(() => {
-    showLayer(layerA, BACKGROUNDS[0]);
-  });
+  layerA.src = BACKGROUNDS[index];
+  layerA.classList.add("visible");
+  hideLayer(layerB);
+  setInterval(next, ROTATE_MS);
 })();

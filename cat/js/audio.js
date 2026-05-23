@@ -12,6 +12,10 @@ const PetAudio = (() => {
   let current = null;
   let stopTimer = null;
 
+  function soundUrl(relative) {
+    return typeof assetUrl === "function" ? assetUrl(relative) : relative;
+  }
+
   function stop() {
     clearTimeout(stopTimer);
     stopTimer = null;
@@ -21,9 +25,9 @@ const PetAudio = (() => {
     current = null;
   }
 
-  function playFile(src, maxSeconds = 2.5, volume = 0.8) {
+  function playFile(relativeSrc, maxSeconds = 2.5, volume = 0.8) {
     stop();
-    const audio = new Audio(src);
+    const audio = new Audio(soundUrl(relativeSrc));
     audio.volume = volume;
     current = audio;
     const cleanup = () => {
@@ -49,7 +53,7 @@ const PetAudio = (() => {
   }
 
   function wake() {
-    const a = new Audio(SOUNDS.meow[0]);
+    const a = new Audio(soundUrl(SOUNDS.meow[0]));
     a.volume = 0.01;
     a.play().then(() => {
       a.pause();
